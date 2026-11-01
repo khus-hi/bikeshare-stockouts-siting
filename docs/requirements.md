@@ -64,6 +64,8 @@ Weights wₖ start equal, are documented in config, and are tested with a sensit
 
 Operators do not publish historical station status, so stockout history starts from when our polling begins. The exact GBFS feed URLs will be confirmed and recorded in `ingest/`.
 
+**Tooling (all free, no credit card):** Python and open-source libraries; DuckDB on a laptop for storage; GBFS polling via a scheduled GitHub Actions workflow on a public repo (or local cron as a fallback); free API keys only (Census); dashboard in Streamlit run locally or Tableau Public.
+
 ## 6. Assumptions
 
 - The City of Boston Analytics Team's interest in Bluebikes siting is as stated by the project sponsor; it has not been independently confirmed here.
@@ -71,6 +73,7 @@ Operators do not publish historical station status, so stockout history starts f
 - Departure rates from uncensored hours are a fair proxy for demand during empty hours. This likely understates demand at chronically empty stations.
 - The process map below is a generic description of how docked systems rebalance. It is **not** sourced from any operator and should be validated if possible.
 - Trip-history formats stay consistent enough across months to combine after cleaning.
+- GitHub Actions scheduled runs can start late or be skipped under load, so polling gaps are expected; they are measured and reported as coverage, not hidden.
 
 ## 7. Out of scope
 
@@ -105,3 +108,4 @@ This project adds evidence at step C (measured stockouts), at step E (demand for
 5. A ranked list and map of Boston candidate cells by siting score is produced, with weights shown and a sensitivity check on the top 10.
 6. Every number in the dashboard and README traces to a data source in Section 5; no synthetic or placeholder figures.
 7. API keys are read from a git-ignored `.env`; the repo runs from a clean clone with `requirements.txt`.
+8. Every tool and service used is free and needs no billing account or credit card.

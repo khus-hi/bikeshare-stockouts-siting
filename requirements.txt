@@ -1,5 +1,6 @@
 # Core data handling
 pandas
+duckdb
 pyarrow
 requests
 python-dotenv
