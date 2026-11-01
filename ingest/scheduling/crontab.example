@@ -1,0 +1,12 @@
+# Cron entries for macOS / Linux. Install with:  crontab -e   (then paste, with your paths)
+# Replace /path/to/bikeshare-stockouts with the absolute path to your clone, and use the
+# Python inside your virtualenv so cron finds pandas/pyarrow (cron has a minimal PATH).
+#
+# min hour day month weekday  command
+# Poll every 5 minutes. Output goes to the collector's own log (data/gbfs/logs/), so
+# cron's mail is silenced with >/dev/null.
+*/5 * * * * cd /path/to/bikeshare-stockouts && .venv/bin/python ingest/gbfs_collector.py --once >/dev/null 2>&1
+
+# Daily health check at 08:00 local time: checks yesterday (UTC), shows a desktop
+# notification if snapshots are missing, and writes data/gbfs/health/<date>.md.
+0 8 * * * cd /path/to/bikeshare-stockouts && .venv/bin/python ingest/gbfs_health_check.py >> data/gbfs/logs/health.log 2>&1

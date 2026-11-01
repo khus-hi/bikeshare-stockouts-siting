@@ -1,6 +1,6 @@
 # Requirements: Bike-share stockouts and station siting
 
-**Author:** Khushi · **Status:** Draft v0.1 · **Date:** 2026-11-01
+**Author:** Khushi · **Status:** Draft v0.2 · **Date:** 2026-11-01
 **Systems:** Bluebikes (Boston), Citi Bike (NYC), Divvy (Chicago)
 
 ## 1. Problem statement
@@ -62,9 +62,9 @@ Weights wₖ start equal, are documented in config, and are tested with a sensit
 | NOAA weather (NCEI daily/hourly) | Temperature, precipitation | Forecast features |
 | Analyze Boston (city open data portal) | Boundaries, other city layers as needed | Siting candidate area |
 
-Operators do not publish historical station status, so stockout history starts from when our polling begins. The exact GBFS feed URLs will be confirmed and recorded in `ingest/`.
+Operators do not publish historical station status, so stockout history starts from when our polling begins. GBFS feed URLs are discovered from each system's `gbfs.json` root on every poll; the roots and the feeds they pointed to on 2026-11-01 are recorded in `ingest/README.md`.
 
-**Tooling (all free, no credit card):** Python and open-source libraries; DuckDB on a laptop for storage; GBFS polling via a scheduled GitHub Actions workflow on a public repo (or local cron as a fallback); free API keys only (Census); dashboard in Streamlit run locally or Tableau Public.
+**Tooling (all free, no credit card):** Python and open-source libraries; change-only daily Parquet files read by DuckDB on a laptop for storage (optional local Postgres mirror); GBFS polling every 5 minutes by cron (macOS/Linux) or Task Scheduler (Windows) on the laptop, with a Kubeflow Pipelines recurring-run version for a local minikube cluster; free API keys only (Census); dashboard in Streamlit run locally or Tableau Public.
 
 ## 6. Assumptions
 
@@ -73,7 +73,8 @@ Operators do not publish historical station status, so stockout history starts f
 - Departure rates from uncensored hours are a fair proxy for demand during empty hours. This likely understates demand at chronically empty stations.
 - The process map below is a generic description of how docked systems rebalance. It is **not** sourced from any operator and should be validated if possible.
 - Trip-history formats stay consistent enough across months to combine after cleaning.
-- GitHub Actions scheduled runs can start late or be skipped under load, so polling gaps are expected; they are measured and reported as coverage, not hidden.
+- The laptop can sleep, lose Wi-Fi, or be shut down, and feeds can fail, so polling gaps are expected; every poll is logged, gaps are measured by a daily health check and reported as coverage, not hidden.
+- Three weeks of status data (three samples of each hour-of-week) is enough for stockout KPIs; demand forecasting relies on trip history, which covers years. A collection started in early November 2026 ends before Thanksgiving week (Nov 26), so the window is not distorted by the holiday; it is also a single season and will not show summer peaks.
 
 ## 7. Out of scope
 
@@ -101,7 +102,7 @@ This project adds evidence at step C (measured stockouts), at step E (demand for
 
 ## 9. Acceptance criteria
 
-1. GBFS snapshots for all three systems are collected on a fixed schedule, with polling coverage reported, for at least four weeks before KPIs are finalized.
+1. GBFS snapshots for all three systems are collected every 5 minutes for at least 21 consecutive days (3 weeks) before KPIs are finalized, with at least 95% of 5-minute slots covered per system; coverage is reported.
 2. Station-hours empty and full are computed exactly as defined in Section 4, reproducible from raw files by one documented command.
 3. Estimated lost rides are reported per system and for the top stations, with the method and uncertainty range stated.
 4. The demand forecast reports MAPE and WAPE on a time-based holdout and is compared to the seasonal-naive baseline; whether it beats the baseline is reported either way.

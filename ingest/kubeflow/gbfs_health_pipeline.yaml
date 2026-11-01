@@ -1,0 +1,50 @@
+# PIPELINE DEFINITION
+# Name: gbfs-health-check
+# Description: Daily check for missing GBFS snapshots.
+components:
+  comp-health-check:
+    executorLabel: exec-health-check
+deploymentSpec:
+  executors:
+    exec-health-check:
+      container:
+        args:
+        - ingest/gbfs_health_check.py
+        - --data-dir
+        - /data/gbfs
+        - --no-notify
+        command:
+        - python
+        image: bikeshare-gbfs:0.1
+        resources:
+          cpuLimit: 0.5
+          memoryLimit: 0.536870912
+          resourceCpuLimit: 500m
+          resourceMemoryLimit: 512Mi
+pipelineInfo:
+  description: Daily check for missing GBFS snapshots.
+  name: gbfs-health-check
+root:
+  dag:
+    tasks:
+      health-check:
+        cachingOptions: {}
+        componentRef:
+          name: comp-health-check
+        taskInfo:
+          name: health-check
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.14.6
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-health-check:
+          imagePullPolicy: IfNotPresent
+          pvcMount:
+          - constant: gbfs-data
+            mountPath: /data
+            pvcNameParameter:
+              runtimeValue:
+                constant: gbfs-data

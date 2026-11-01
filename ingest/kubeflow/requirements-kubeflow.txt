@@ -1,0 +1,4 @@
+# Only for compiling/scheduling the Kubeflow version (not needed for the laptop collector).
+# kfp 2.14.x supports Python 3.9-3.12; use a separate virtualenv if your main one is 3.13.
+kfp==2.14.6
+kfp-kubernetes==2.15.2

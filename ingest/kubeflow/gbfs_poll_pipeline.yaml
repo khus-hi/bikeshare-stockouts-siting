@@ -1,0 +1,50 @@
+# PIPELINE DEFINITION
+# Name: gbfs-poll
+# Description: Poll GBFS station_status/information once (change-only Parquet).
+components:
+  comp-poll-gbfs:
+    executorLabel: exec-poll-gbfs
+deploymentSpec:
+  executors:
+    exec-poll-gbfs:
+      container:
+        args:
+        - ingest/gbfs_collector.py
+        - --once
+        - --data-dir
+        - /data/gbfs
+        command:
+        - python
+        image: bikeshare-gbfs:0.1
+        resources:
+          cpuLimit: 0.5
+          memoryLimit: 0.536870912
+          resourceCpuLimit: 500m
+          resourceMemoryLimit: 512Mi
+pipelineInfo:
+  description: Poll GBFS station_status/information once (change-only Parquet).
+  name: gbfs-poll
+root:
+  dag:
+    tasks:
+      poll-gbfs:
+        cachingOptions: {}
+        componentRef:
+          name: comp-poll-gbfs
+        taskInfo:
+          name: poll-gbfs
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.14.6
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-poll-gbfs:
+          imagePullPolicy: IfNotPresent
+          pvcMount:
+          - constant: gbfs-data
+            mountPath: /data
+            pvcNameParameter:
+              runtimeValue:
+                constant: gbfs-data

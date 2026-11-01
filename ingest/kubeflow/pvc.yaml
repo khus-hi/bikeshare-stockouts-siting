@@ -1,0 +1,33 @@
+# Persistent volume for the collector's Parquet files and state. minikube's default
+# "standard" storage class keeps it on the minikube node's disk, so it survives pod
+# restarts (each 5-minute run is a new pod). Apply into the namespace your pipeline
+# runs in (standalone Kubeflow Pipelines uses "kubeflow"):
+#   kubectl apply -n kubeflow -f ingest/kubeflow/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gbfs-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+---
+# A tiny pod that only mounts the volume, so you can copy the data to your laptop:
+#   kubectl cp kubeflow/gbfs-data-reader:/data/gbfs ./data/gbfs
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gbfs-data-reader
+spec:
+  containers:
+    - name: reader
+      image: busybox:1.36
+      command: ["sleep", "infinity"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: gbfs-data

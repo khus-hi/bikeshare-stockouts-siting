@@ -4,6 +4,9 @@ duckdb
 pyarrow
 requests
 python-dotenv
+pytz  # DuckDB needs it to return timezone-aware timestamps to Python
+# Optional: only needed if POSTGRES_DSN is set for the collector's Postgres sink
+psycopg[binary]
 # Geospatial (station siting)
 geopandas
 shapely
