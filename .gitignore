@@ -1,0 +1,19 @@
+# Secrets: API keys live in .env and never get committed
+.env
+.env.*
+!.env.example
+
+# Raw and processed data (re-downloadable from official sources)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

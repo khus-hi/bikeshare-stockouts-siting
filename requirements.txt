@@ -1,0 +1,14 @@
+# Core data handling
+pandas
+pyarrow
+requests
+python-dotenv
+# Geospatial (station siting)
+geopandas
+shapely
+# Modeling
+scikit-learn
+statsmodels
+# Dashboard
+streamlit
+plotly
