@@ -1,0 +1,17 @@
+{
+  "_about": "Siting score settings. The Excel Inputs sheet mirrors these values; analysis/siting_score.py reads this file. Weights start equal (docs/requirements.md) and are tested by leave-one-out sensitivity.",
+  "city": "boston",
+  "min_population": 500,
+  "distance_cap_m": 1600,
+  "walk_radius_m": 400,
+  "weights": {
+    "pop_density": 0.2,
+    "commute_transit_bike_walk": 0.2,
+    "no_vehicle": 0.2,
+    "age_18_34": 0.2,
+    "station_gap": 0.2,
+    "low_income": 0.0
+  },
+  "top_n": 15,
+  "low_income_quantile": 0.25
+}

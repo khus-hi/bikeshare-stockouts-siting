@@ -47,6 +47,8 @@ Station-hours with zero departures are excluded from MAPE because it is undefine
 - distance to the nearest MBTA rapid transit or bus stop
 - share of households without a vehicle (ACS), as an equity factor
 
+**v1 (Nov 2026):** tract-level score built in Excel and Python from ACS density, car-free commuting, no-vehicle share, age 18–34 share and distance to the nearest station (see `docs/siting_excel_guide.md`); lost rides and MBTA distance are added once the stockout collection finishes.
+
 Weights wₖ start equal, are documented in config, and are tested with a sensitivity analysis so the top-ranked cells can be shown to be stable (or not) under different weightings. The walking-distance radius is a parameter, set and justified in the analysis.
 
 ## 5. Data sources

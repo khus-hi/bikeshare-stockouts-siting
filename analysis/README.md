@@ -147,3 +147,29 @@ live only in the test and a temp folder; no number from them is ever reported.
 * **Why a range for lost rides?** It is an estimate built on an average of a few hours,
   and the method understates demand at chronically empty stations; the range and the
   caveat go with the number.
+
+## Siting score (Census tracts, Boston)
+
+Three scripts, run from the repo root on a machine that can reach api.census.gov and
+www2.census.gov (the cloud dev environment cannot):
+
+```bash
+python ingest/census_download.py           # ACS 2020-2024 5-year tracts for Boston, NYC, Chicago
+python analysis/tract_station_distance.py  # tract interior point -> nearest GBFS station
+python analysis/siting_score.py            # Boston score, top 15, sensitivity, equity gaps
+```
+
+Outputs go to `analysis/results/siting/`. Settings (weights, 500-resident floor, 1,600 m
+distance cap, 400 m walk radius) are in `analysis/siting_config.json`. The score is built by
+hand in Excel following `docs/siting_excel_guide.md`; `siting_score.py` is the same math in
+Python, used to check the workbook and to run the leave-one-out weight sensitivity.
+
+* **Factors:** population density, share of commuters using transit/bike/walk, share of
+  households without a car, share aged 18-34, distance to the nearest station (capped),
+  and optionally low income (weight 0 by default). Each is min-max scaled across eligible
+  Boston tracts, then `score = SUMPRODUCT(z, weights)`.
+* **Not yet included:** lost rides at nearby stations (needs the finished 21-day stockout
+  collection) and distance to MBTA stops; both are in the requirements and planned.
+* **Equity gap:** a tract in the bottom 25% of eligible Boston tracts by median household
+  income with no station within 400 m.
+* `tests/test_siting.py` checks the distance math and a hand-scored three-tract example.
