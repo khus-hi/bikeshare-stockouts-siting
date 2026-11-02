@@ -111,6 +111,29 @@ is only worth having if it beats it. `docs/requirements.md` sets this as the bar
 `analysis/results/netflow_feature_importance.csv` shows which features the trees relied
 on most (share of total gain), per city and target.
 
+## What the results show (September 2026 test month)
+
+Full table: [`analysis/results/netflow_metrics.md`](../analysis/results/netflow_metrics.md).
+
+* **LightGBM beats the seasonal-naive baseline in all three cities, on every metric.**
+  Departures WAPE with weather: Boston 64.7% vs 85.2%, NYC 46.1% vs 61.1%, Chicago 76.3%
+  vs 94.8%. Departures MAPE (hours with >=1 trip): Boston 56.7% vs 85.2%, NYC 56.8% vs
+  80.8%, Chicago 59.5% vs 86.2%.
+* **The biggest single driver is the 3-week same-hour average** (55-85% of total gain).
+  Averaging three weeks smooths out one-off noise that the "last week only" baseline
+  copies, which is most of why the model wins.
+* **Weather helps departures and arrivals a little, but not net flow.** Adding weather
+  lowered departures WAPE by 2.9 points in Boston, 2.1 in NYC and 0.7 in Chicago; weather
+  features got about 4% of total gain. Net-flow error did not improve (net WAPE moved
+  +0.3 to +1.0 points; 3-hour MAE unchanged within 0.02 bikes). That makes sense: rain
+  stops riders from leaving *and* from arriving, so it mostly cancels in departures
+  minus arrivals. September 2026 was also a mild month, so the test has few bad-weather
+  hours; a winter test month would show weather's value better.
+* **Net flow is hard to forecast in percentage terms** (net MAPE around 93-98%), because
+  it is a small difference of two noisy counts. In bikes, the 3-hour net-flow error is
+  1.6 (Boston), 2.5 (NYC) and 1.0 (Chicago) bikes per station, versus 2.2, 3.3 and 1.4
+  for the baseline, and that is the number the rebalancing step relies on.
+
 ## Step 2: the rebalancing list, in plain English
 
 For each station that is in service right now:
