@@ -92,8 +92,8 @@ def plan_station(bikes_now: float, docks_now: float, net_out: list[float], weigh
     full_short = max(0.0, hi - slots)     # riders who would find no dock
     hits_empty = lo <= 0
     hits_full = hi >= slots
-    first_empty = next((i for i, b in enumerate(path) if b <= 0), None) if hits_empty else None
-    first_full = next((i for i, b in enumerate(path) if b >= slots), None) if hits_full else None
+    first_empty = (0 if bikes_now <= 0 else next(i for i, b in enumerate(path) if b <= 0)) if hits_empty else None
+    first_full = (0 if docks_now <= 0 else next(i for i, b in enumerate(path) if b >= slots)) if hits_full else None
 
     # The side that goes further past its limit decides the action; if both sides are hit
     # (a big swing out then in), moving bikes cannot fix both, so the larger shortfall wins.
@@ -322,7 +322,7 @@ def run_system(con, system: str, as_of, buffers: dict) -> pd.DataFrame:
     df = df.sort_values(["_tier", "shortfall", "hits_limit_by_utc", "_margin"],
                         ascending=[True, False, True, True], na_position="last")
     df = df.drop(columns=["_tier", "_margin"])
-    df.insert(2, "priority", range(1, len(df) + 1))
+    df.insert(2, "priority", pd.array(range(1, len(df) + 1), dtype="Int64"))
     df.loc[df["status"] == "ok", "priority"] = pd.NA
     local_now = now.tz_localize("UTC").tz_convert(tz)
     df["as_of_utc"] = now
