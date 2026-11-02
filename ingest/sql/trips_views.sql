@@ -11,12 +11,20 @@ SELECT * FROM (VALUES
 
 -- All trips, all systems. `system` and `city` are stored inside each file, so hive
 -- partitioning is off (the folder names only organise the files).
--- started_at / ended_at are local wall-clock time; *_utc are the same instants in UTC.
+-- started_at / ended_at are local wall-clock time as published; *_utc are the same
+-- instants in UTC (GBFS snapshots are UTC). In the November DST fall-back hour local time
+-- is ambiguous and DuckDB picks one of the two instants: at most 1 hour off, for a few
+-- trips once a year.
 CREATE OR REPLACE VIEW trips AS
-SELECT * FROM read_parquet('data/trips/parquet/*/*/*.parquet', hive_partitioning = false);
+SELECT t.*,
+       timezone(s.tz, t.started_at) AS started_at_utc,
+       timezone(s.tz, t.ended_at)   AS ended_at_utc
+FROM read_parquet('data/trips/parquet/*/*/*.parquet', hive_partitioning = false) t
+JOIN systems s USING (system);
 
 -- Trips used for demand: valid times, positive duration, under 24 hours.
--- (The operators already drop trips under 60 s and staff test rides before publishing.)
+-- (The operators say on their data pages that trips under 60 s and staff trips are
+-- already removed before publishing.)
 CREATE OR REPLACE VIEW trips_clean AS
 SELECT *, date_diff('second', started_at, ended_at) / 60.0 AS duration_min
 FROM trips

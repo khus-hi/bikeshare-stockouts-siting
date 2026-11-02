@@ -83,8 +83,6 @@ def con(tmp_path_factory):
         COPY (
           SELECT 'bluebikes' AS system, 'boston' AS city, 'r' || i AS ride_id, 'classic_bike' AS rideable_type,
                  s::TIMESTAMP AS started_at, s::TIMESTAMP + INTERVAL 10 MINUTE AS ended_at,
-                 timezone('America/New_York', s::TIMESTAMP) AS started_at_utc,
-                 timezone('America/New_York', s::TIMESTAMP + INTERVAL 10 MINUTE) AS ended_at_utc,
                  'A1' AS start_station_id, 'Station One' AS start_station_name,
                  'B2' AS end_station_id, 'Station Two' AS end_station_name,
                  42.36 AS start_lat, -71.06 AS start_lng, 42.36 AS end_lat, -71.06 AS end_lng,

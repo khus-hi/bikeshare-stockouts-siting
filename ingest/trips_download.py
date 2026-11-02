@@ -11,7 +11,7 @@ What it does, one system-month at a time (so disk use stays small):
   2. Downloads the file (zip or plain csv) to data/trips/_raw/.
   3. Extracts every CSV inside (Citi Bike zips hold several CSVs, sometimes nested zips).
   4. Reads all CSVs with DuckDB as text, checks the columns are the expected ones,
-     casts types, adds city/system columns and UTC timestamps, and writes
+     casts types, adds city/system columns, and writes
        data/trips/parquet/system=<system>/month=YYYY-MM/trips.parquet   (zstd)
   5. Deletes the raw download (use --keep-raw to keep it) and records row counts and
      the source file in data/trips/manifest.csv.
@@ -153,7 +153,7 @@ def extract_csvs(path: Path, out_dir: Path) -> list[Path]:
 def convert(con: duckdb.DuckDBPyConnection, system: str, month: str, csvs: list[Path],
             source_key: str, out_path: Path) -> dict:
     """Read the month's CSVs as text, validate columns, normalize, write one Parquet file."""
-    _, _, city, tz = SYSTEMS[system]
+    _, _, city, _ = SYSTEMS[system]
     files = [str(p) for p in csvs]
     for f in files:  # every file must have exactly the expected header
         cols = [r[0] for r in con.execute(
@@ -163,11 +163,10 @@ def convert(con: duckdb.DuckDBPyConnection, system: str, month: str, csvs: list[
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".parquet.tmp")
-    # Times in the files are local wall-clock time without an offset. We keep them as
-    # local (that's what riders experienced: "8am") and also convert to UTC, because the
-    # GBFS snapshots are stored in UTC. During the November DST fall-back hour the local
-    # time is ambiguous; DuckDB picks one of the two instants, an error of at most 1 hour
-    # on a handful of trips once a year.
+    # Times in the files are local wall-clock time without an offset, with milliseconds.
+    # We keep local time (that's what riders experienced: "8am") and round down to whole
+    # seconds: the milliseconds are noise for hourly analysis and nearly double the size
+    # of the time columns. UTC versions are computed in the trips view, not stored.
     con.execute(f"""
         COPY (
             SELECT
@@ -175,10 +174,8 @@ def convert(con: duckdb.DuckDBPyConnection, system: str, month: str, csvs: list[
                 '{city}'                                      AS city,
                 ride_id,
                 rideable_type,
-                TRY_CAST(started_at AS TIMESTAMP)             AS started_at,
-                TRY_CAST(ended_at   AS TIMESTAMP)             AS ended_at,
-                timezone('{tz}', TRY_CAST(started_at AS TIMESTAMP)) AS started_at_utc,
-                timezone('{tz}', TRY_CAST(ended_at   AS TIMESTAMP)) AS ended_at_utc,
+                date_trunc('second', TRY_CAST(started_at AS TIMESTAMP)) AS started_at,
+                date_trunc('second', TRY_CAST(ended_at   AS TIMESTAMP)) AS ended_at,
                 NULLIF(trim(start_station_id), '')            AS start_station_id,
                 NULLIF(trim(start_station_name), '')          AS start_station_name,
                 NULLIF(trim(end_station_id), '')              AS end_station_id,
