@@ -13,6 +13,7 @@ shapely
 # Modeling
 scikit-learn
 statsmodels
+lightgbm  # net-flow forecast (macOS: if import fails with libomp, run `brew install libomp`)
 # Dashboard
 streamlit
 plotly
