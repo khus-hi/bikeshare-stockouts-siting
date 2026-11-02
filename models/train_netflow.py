@@ -34,6 +34,7 @@ Usage (from the repo root):
   python models/train_netflow.py                  # with weather if data/weather/history exists
   python models/train_netflow.py --no-weather     # calendar + lags only
   python models/train_netflow.py --ablation       # both, to show what weather adds
+  python models/train_netflow.py --merge          # with weather, keeping an earlier --no-weather run
 """
 
 from __future__ import annotations
@@ -180,6 +181,9 @@ def main(argv=None) -> int:
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--no-weather", action="store_true")
     g.add_argument("--ablation", action="store_true", help="train with and without weather")
+    ap.add_argument("--merge", action="store_true",
+                    help="keep earlier results for city/variant pairs not trained in this run "
+                         "(e.g. add the with-weather run to an existing no-weather run)")
     ap.add_argument("--test-days", type=int, default=30)
     ap.add_argument("--valid-days", type=int, default=14)
     ap.add_argument("--max-rounds", type=int, default=1000)
@@ -197,11 +201,24 @@ def main(argv=None) -> int:
 
     if not rows:
         return 1
-    m = pd.DataFrame(rows)
+    m, imp = pd.DataFrame(rows), pd.DataFrame(imp)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    if args.merge:  # keep rows from earlier runs for (system, variant) pairs not retrained now
+        def merged(new, path):
+            if not path.exists():
+                return new
+            old = pd.read_csv(path)
+            done = set(zip(new["system"], new["variant"]))
+            keep = old[[(s, v) not in done for s, v in zip(old["system"], old["variant"])]]
+            return pd.concat([keep, new], ignore_index=True)
+        m = merged(m, RESULTS_DIR / "netflow_metrics.csv")
+        imp = merged(imp, RESULTS_DIR / "netflow_feature_importance.csv")
+        order = {s: i for i, s in enumerate(SYSTEM_TZ)}
+        m = m.sort_values(["system", "variant", "forecast"], key=lambda c: c.map(order) if c.name == "system" else c,
+                          ascending=[True, True, False], kind="stable").reset_index(drop=True)
     m.to_csv(RESULTS_DIR / "netflow_metrics.csv", index=False, float_format="%.4f")
     (RESULTS_DIR / "netflow_metrics.md").write_text(to_markdown(m))
-    pd.DataFrame(imp).to_csv(RESULTS_DIR / "netflow_feature_importance.csv", index=False, float_format="%.5f")
+    imp.to_csv(RESULTS_DIR / "netflow_feature_importance.csv", index=False, float_format="%.5f")
     (MODELS_DIR / "buffers.json").write_text(json.dumps(buffers, indent=2))
     print("\n" + to_markdown(m))
     return 0
