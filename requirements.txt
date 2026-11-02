@@ -16,3 +16,5 @@ statsmodels
 # Dashboard
 streamlit
 plotly
+# Tests
+pytest
