@@ -72,6 +72,13 @@ def test_near_empty_within_buffer_and_ok():
     assert ok["status"] == "ok" and ok["bikes_to_move"] == 0
 
 
+def test_full_now_but_emptying_later_is_recheck_not_a_move():
+    # Seen on the first real run: 18 bikes, 0 docks, losing 46 net over 3 hours.
+    p = rb.plan_station(18, 0, [20, 20, 6], [1, 1, 1], buffer=1.6)
+    assert p["status"] == "projected_empty" and p["action"] == "recheck_later"
+    assert p["bikes_to_move"] == 0 and p["shortfall"] == 28
+
+
 def test_already_empty_station():
     p = rb.plan_station(0, 10, [0.5, 0.5, 0.5], [1, 1, 1], buffer=1)
     assert p["status"] == "projected_empty" and p["first_hit_hour_index"] == 0

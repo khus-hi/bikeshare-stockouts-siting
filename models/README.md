@@ -153,6 +153,10 @@ For each station that is in service right now:
    **near empty / near full**, after the projected ones.
 6. **Rank.** Projected stockouts first, largest shortfall first (shortfall = riders the
    forecast says would find no bike or no dock), then soonest. Near-limit stations follow.
+   Last are **recheck later** stations: projected to hit a limit, but nothing can be
+   moved right now (for example full now, so there is no dock to add bikes into, but
+   emptying by the evening peak). Stations showing 0 bikes and 0 docks have no usable
+   dock at all and are skipped.
 
 Output: `data/rebalancing/priority_<UTC time>.csv` with, per station, bikes and docks
 now, forecast departures and arrivals for the 3 hours, projected low and high bike
