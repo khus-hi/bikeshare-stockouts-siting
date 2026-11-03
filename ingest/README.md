@@ -9,6 +9,7 @@ history by polling the GBFS feeds of Bluebikes, Divvy and Citi Bike every 5 minu
 | `gbfs_collector.py` | One poll of all three systems (`--once`), or a loop (`--loop`) |
 | `gbfs_health_check.py` | Daily report: missing snapshots, gaps, stale feeds, storage |
 | `trips_download.py` | Downloads 12 months of official trip history into Parquet (see `analysis/README.md`) |
+| `station_daily.py` | Station x day departures/arrivals for any month range (30 months for the new-station study), keeping only the small daily table |
 | `census_download.py` | ACS 2020-2024 5-year tract data, TIGER boundaries and neighborhood maps for the siting score (see `analysis/README.md`) |
 | `sql/duckdb_views.sql` | DuckDB views over the Parquet files |
 | `sql/trips_views.sql` | DuckDB views over the trip-history Parquet |

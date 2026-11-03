@@ -173,3 +173,19 @@ Python, used to check the workbook and to run the leave-one-out weight sensitivi
 * **Equity gap:** a tract in the bottom 25% of eligible Boston tracts by median household
   income with no station within 400 m.
 * `tests/test_siting.py` checks the distance math and a hand-scored three-tract example.
+
+## New stations: added rides or cannibalization? (difference-in-differences)
+
+```bash
+python ingest/station_daily.py --start 2024-04 --end 2026-09   # station x day counts, 30 months
+python analysis/new_station_did.py                              # stacked DiD -> analysis/results/new_stations/
+python analysis/plot_new_station_did.py                         # event_study.png, did_by_distance.png
+```
+
+Finds stations that opened in the last 18 months (first departure after a 12-month burn-in),
+compares existing stations within 500 m against matched stations 2-5 km away, 12 weeks
+before vs after, with 95% CIs from a bootstrap over openings. Also: distance rings, a
+placebo with fake opening dates, an event study and the net area effect. The experiment
+write-up with assumptions and threats to validity is
+`analysis/results/new_stations/new_station_experiment.md`.
+`tests/test_new_station_did.py` checks the design on a hand-built example.
