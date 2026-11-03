@@ -55,9 +55,15 @@ WITH station_days AS (
 )
 SELECT g.system, g.station_id, g.seg_start_utc, g.seg_end_utc,
        s.num_bikes_available, s.num_docks_available,
-       (s.is_installed = 1 AND s.is_renting = 1 AND s.num_bikes_available = 0)  AS is_empty,
-       (s.is_installed = 1 AND s.is_returning = 1 AND s.num_docks_available = 0) AS is_full,
-       NOT (s.is_installed = 1 AND s.is_renting = 1)                            AS out_of_service
+       -- 0 bikes AND 0 docks means no usable dock at all (all disabled or reporting
+       -- nothing): a rider can neither rent nor return, so it is out of service, not
+       -- "empty and full" at once. Counting it as both put stockout shares above 100%.
+       (s.is_installed = 1 AND s.is_renting = 1 AND s.num_bikes_available = 0
+            AND s.num_docks_available > 0)                                      AS is_empty,
+       (s.is_installed = 1 AND s.is_returning = 1 AND s.num_docks_available = 0
+            AND s.num_bikes_available > 0)                                      AS is_full,
+       NOT (s.is_installed = 1 AND s.is_renting = 1)
+            OR (s.num_bikes_available = 0 AND s.num_docks_available = 0)        AS out_of_service
 FROM grid g
 ASOF JOIN station_status_utc s
   ON  s.system = g.system

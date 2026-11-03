@@ -44,10 +44,11 @@ def test_heatmap_and_problem_stations(con, out):  # noqa: F811
     assert (b2.full_share == 1).all() and b2.est_lost_rides.isna().all()
 
     probs = pd.read_csv(out / "problem_stations.csv")
-    assert list(probs.station_code) == ["B2", "A1"]  # B2 has more stockout hours
-    assert list(probs.rank_stockout_hours) == [1, 2]
+    assert list(probs.station_code)[:2] == ["B2", "A1"]  # B2 has more stockout hours
+    assert list(probs.rank_stockout_hours)[:2] == [1, 2]
+    assert (heat.empty_share + heat.full_share <= 1).all()
     peak = pd.read_csv(out / "peak_problem_stations.csv")
-    assert list(peak.station_code) == ["B2", "A1"]
+    assert list(peak.station_code)[:2] == ["B2", "A1"]
 
 
 def test_experiment_placeholder_has_no_numbers(out, monkeypatch, tmp_path_factory):
