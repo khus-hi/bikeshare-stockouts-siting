@@ -44,7 +44,7 @@ Each block skips itself with a message when its input isn't on the machine. On K
 | `forecast_station_accuracy.csv` | station, Sep 2026 test month | **Exported** (Boston 618, Chicago 1,236 stations) |
 | `forecast_metrics.csv` | city × variant × forecast × metric | **Exported** (long form of `analysis/results/netflow_metrics.csv`) |
 | `siting_tracts.csv` | Boston Census tract | **Exported** (207 tracts) |
-| `experiment_status.csv` + `experiment_*.csv` | as written by the DiD study | Copied in after PR #6 merges and the export re-runs |
+| `experiment_status.csv` + `experiment_*.csv` | as written by the DiD study | **Exported** (all three cities + pooled) |
 | `export_manifest.csv` | file | what was written, when, from what |
 
 NYC forecast tables need the Citi Bike panel (8 GB of trip zips); run
@@ -182,8 +182,8 @@ Canvas: **Theme and layout → Canvas size: Custom 1600 × 1400**. Grid of 3 row
   to areas of about 4,000 people, not street corners.
 
 ### 5. Experiment result (data: `experiment_did_summary`, `experiment_net_effect`, `experiment_did_by_distance`)
-The study (PR #6) writes `analysis/results/new_stations/*.csv`; once it's merged, re-run the
-export and the files appear as `experiment_*.csv`. `system` is bluebikes / citibike / divvy /
+The study writes `analysis/results/new_stations/*.csv`; the export copies them as
+`experiment_*.csv`. `system` is bluebikes / citibike / divvy /
 all (all = the three cities pooled), so the city control needs `boston → bluebikes`; simplest is a
 chart-level filter `system = bluebikes`.
 * **Scorecards** from `experiment_net_effect`: `own_departures_per_week`,
@@ -195,7 +195,6 @@ chart-level filter `system = bluebikes`.
 * **Bar chart** from `experiment_did_by_distance`: dimension `ring_m`, metric
   `did_pct_of_pre`. Looker Studio has no error bars, so show the CI columns in the tooltip or
   a table; in Power BI use error bars on the bar visual.
-* Before PR #6 merges, `experiment_status.csv` says "pending" and the tile shows no numbers.
 
 ### Finishing
 * **Share → Manage access → Anyone with the link can view** to put the link on a CV/LinkedIn.
