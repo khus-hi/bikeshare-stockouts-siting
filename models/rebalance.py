@@ -24,7 +24,10 @@ The logic, in plain English:
      Stations that stay inside the limits but come within the buffer are "near empty" /
      "near full" and are listed after the projected ones.
   6. Rank: projected stockouts first, by shortfall (how many riders the forecast says
-     would find no bike or no dock), then by how soon it happens.
+     would find no bike or no dock), then by how soon it happens. Near-limit stations
+     follow. Last come "recheck_later" stations: projected to hit a limit, but nothing can
+     be moved now (e.g. full right now, so no dock to add bikes into, yet emptying by
+     evening). Stations with 0 bikes and 0 docks (no usable dock) are skipped.
 
 Where the lag features come from at run time. Trip history is published once a month,
 so last week's trips are not available yet. Recent demand is estimated from the GBFS
@@ -112,9 +115,13 @@ def plan_station(bikes_now: float, docks_now: float, net_out: list[float], weigh
 
     cap = docks_now if action == "add" else bikes_now if action == "remove" else 0
     move = int(min(math.ceil(max(move, 0.0) - 1e-9), cap))
+    if action != "none" and move == 0 and cap <= 0:
+        # e.g. full right now (no free dock to add into) but projected to empty later:
+        # nothing can be moved now, so it goes after the actionable stations.
+        action = "recheck_later"
     return {
         "status": status, "action": action, "bikes_to_move": move,
-        "shortfall": round(empty_short if action == "add" else full_short if action == "remove" else 0.0, 2),
+        "shortfall": round(empty_short if status.endswith("empty") else full_short if status.endswith("full") else 0.0, 2),
         "projected_min_bikes": round(lo, 2), "projected_max_bikes": round(hi, 2),
         "first_hit_hour_index": first,
     }
@@ -275,6 +282,8 @@ def run_system(con, system: str, as_of, buffers: dict) -> pd.DataFrame:
     tz, city = SYSTEM_TZ[system], SYSTEM_CITY[system]
     now, st = current_state(con, system, as_of)
     st = st[st["station_code"].notna()].drop_duplicates("station_code")
+    no_slots = int(((st["bikes_now"] + st["docks_now"]) <= 0).sum())
+    st = st[(st["bikes_now"] + st["docks_now"]) > 0]  # 0 bikes and 0 docks: no usable dock at all
     hours, weights = horizon(now)
     models = {t: lgb.Booster(model_file=str(MODELS_DIR / f"{system}_{t}.txt")) for t in TARGETS}
     feat_names = models["departures"].feature_name()
@@ -315,8 +324,8 @@ def run_system(con, system: str, as_of, buffers: dict) -> pd.DataFrame:
             **p, "hits_limit_by_utc": hit_utc, "hits_limit_by_local": hit_local,
         })
     df = pd.DataFrame(out)
-    order = {"projected_empty": 0, "projected_full": 0, "near_empty": 1, "near_full": 1, "ok": 2}
-    df["_tier"] = df["status"].map(order)
+    order = {"projected_empty": 0, "projected_full": 0, "near_empty": 1, "near_full": 1, "ok": 3}
+    df["_tier"] = df["status"].map(order).where(df["action"] != "recheck_later", 2)
     df["_margin"] = np.where(df["action"] == "add", df["projected_min_bikes"],
                              df["docks_now"] + df["bikes_now"] - df["projected_max_bikes"])
     df = df.sort_values(["_tier", "shortfall", "hits_limit_by_utc", "_margin"],
@@ -330,7 +339,7 @@ def run_system(con, system: str, as_of, buffers: dict) -> pd.DataFrame:
           f"{(df.status == 'projected_empty').sum()} projected empty, {(df.status == 'projected_full').sum()} "
           f"projected full, {df.status.str.startswith('near').sum()} near a limit; buffer {buf:.2f} bikes; "
           f"lags {gbfs_share:.0%} from GBFS, {1 - gbfs_share:.0%} from trip profile; "
-          f"{skipped} stations skipped (no history)")
+          f"{skipped} stations skipped (no history), {no_slots} skipped (0 bikes and 0 docks, nothing usable)")
     if (pd.Timestamp.now("UTC").tz_localize(None) - now) > pd.Timedelta(minutes=30) and as_of is None:
         print(f"  warning: latest successful poll is {now} UTC, more than 30 minutes ago")
     return df
