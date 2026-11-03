@@ -75,7 +75,7 @@ def forecast_week() -> None:
     b = h[h.city == "boston"].copy()
     b["t"] = pd.to_datetime(b.hour_local_ts)
     # First full Monday-Sunday week of the test month, so the chart shows a normal week.
-    start = b.t[b.t.dt.dayofweek.eq(0) & b.t.dt.hour.eq(0)].min()
+    start = b.t[b.t.dt.day_of_week.eq(0) & b.t.dt.hour.eq(0)].min()
     w = b[(b.t >= start) & (b.t < start + pd.Timedelta(days=7))]
     fig, ax = plt.subplots(figsize=(11, 4))
     ax.plot(w.t, w.naive_departures, color=MUTED, lw=1.5, ls=(0, (4, 3)), label="Same hour last week (baseline)")
