@@ -20,3 +20,4 @@ venv/
 
 # Dashboard: large optional export
 dashboard/exports/large/
+dashboard/exports/powerbi_dashboard.xlsx
