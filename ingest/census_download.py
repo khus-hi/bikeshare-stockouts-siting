@@ -96,7 +96,8 @@ ACS_VARS = {
     "B01001_035E": "Female:!!25 to 29 years",
     "B01001_036E": "Female:!!30 to 34 years",
     "B08301_001E": "Estimate!!Total:",                              # workers 16+, means of transport
-    "B08301_010E": "Public transportation (excluding taxicab):",
+    # 2024 label is "Public transportation:"; taxi/ride-hailing is its own line (016), not inside it.
+    "B08301_010E": "Public transportation:",
     "B08301_018E": "Bicycle",
     "B08301_019E": "Walked",
     "B08301_021E": "Worked from home",
