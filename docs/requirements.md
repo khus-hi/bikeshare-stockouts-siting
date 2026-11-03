@@ -66,7 +66,7 @@ Weights wₖ start equal, are documented in config, and are tested with a sensit
 
 Operators do not publish historical station status, so stockout history starts from when our polling begins. GBFS feed URLs are discovered from each system's `gbfs.json` root on every poll; the roots and the feeds they pointed to on 2026-11-01 are recorded in `ingest/README.md`.
 
-**Tooling (all free, no credit card):** Python and open-source libraries; change-only daily Parquet files read by DuckDB on a laptop for storage (optional local Postgres mirror); GBFS polling every 5 minutes by cron (macOS/Linux) or Task Scheduler (Windows) on the laptop, with a Kubeflow Pipelines recurring-run version for a local minikube cluster; free API keys only (Census); dashboard in Looker Studio (free, browser-based; see `dashboard/README.md`), with Power BI Desktop measures as a Windows alternative.
+**Tooling (all free, no credit card):** Python and open-source libraries; change-only daily Parquet files read by DuckDB on a laptop for storage (optional local Postgres mirror); GBFS polling every 5 minutes by cron (macOS/Linux) or Task Scheduler (Windows) on the laptop, with a Kubeflow Pipelines recurring-run version for a local minikube cluster; free API keys only (Census); results shown as static matplotlib charts built from exported tables (`dashboard/README.md`); no BI tool needed.
 
 ## 6. Assumptions
 
@@ -109,6 +109,6 @@ This project adds evidence at step C (measured stockouts), at step E (demand for
 3. Estimated lost rides are reported per system and for the top stations, with the method and uncertainty range stated.
 4. The demand forecast reports MAPE and WAPE on a time-based holdout and is compared to the seasonal-naive baseline; whether it beats the baseline is reported either way.
 5. A ranked list and map of Boston candidate cells by siting score is produced, with weights shown and a sensitivity check on the top 10.
-6. Every number in the dashboard and README traces to a data source in Section 5; no synthetic or placeholder figures.
+6. Every number in the charts, pitch and README traces to a data source in Section 5; no synthetic or placeholder figures.
 7. API keys are read from a git-ignored `.env`; the repo runs from a clean clone with `requirements.txt`.
 8. Every tool and service used is free and needs no billing account or credit card.
