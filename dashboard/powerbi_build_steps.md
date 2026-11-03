@@ -23,6 +23,22 @@ the Mac.
 Copy the whole `dashboard/exports/` folder to the Windows machine (USB, OneDrive, or
 `git clone` the repo there).
 
+## Power BI in the browser (app.powerbi.com)
+
+The web version has no Power Query and turns each uploaded file into its own model, so
+instead of loading 11 CSVs, pack them into one workbook on the Mac:
+
+```bash
+python dashboard/export_tables.py
+python dashboard/make_powerbi_workbook.py   # -> dashboard/exports/powerbi_dashboard.xlsx
+```
+
+Upload `powerbi_dashboard.xlsx` to **My workspace**; it becomes one semantic model with a
+`Cities` table and one table per export, and already has the `city` and
+`model_vs_baseline` helper columns from step 2. Then open the model, add the relationships
+(step 3) and measures (step 4) in its data model view, and build the page (step 5) in
+**Create report**. Map settings in step 5 are under the visual's format pane in the web too.
+
 ## 1. Refresh the exports first (on the Mac)
 
 ```bash
