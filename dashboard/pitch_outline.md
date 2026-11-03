@@ -86,16 +86,17 @@ Visual: dashboard siting map (left) + forecast vs actual line for one week (righ
    [PENDING] top problem stations; use the 3-hour forecast list (`models/rebalance.py`) to
    send crews before a station empties.
 2. **New stations:** start with the top 3 candidates plus Roxbury 25025082100 (equity).
-   Check each on a walking-network map first: 11 of the top 15 are only 400–500 m
+   Check each on a walking-network map first: 12 of the top 15 are only 400–500 m
    (straight line) from a station.
 3. **West Roxbury / Hyde Park gaps (1.2–2.2 km):** a coverage-vs-ridership policy call.
    Show both rankings (income weight 0 vs >0) and let the city decide.
 4. **New stations add rides; they don't just move them.** Boston, 49 new-station openings,
-   123 existing stations nearby [analysis/results/new_stations/, PR #6]:
+   123 existing stations nearby [analysis/results/new_stations/]:
    * Each new station drew **102 departures/week** of its own (95% CI 80 to 128).
-   * Existing stations within 500 m changed by **-8.3 departures/week, -3.4%**
+   * Each existing station within 500 m changed by **-8.3 departures/week, -3.4%**
      (95% CI -7.1% to +1.4%), not statistically different from zero on that scale
-     [did_summary.csv, system=bluebikes, outcome=departures, test=main].
+     [did_summary.csv, system=bluebikes, outcome=departures, test=main]. With ~2.5 neighbours
+     per opening that is -21 a week per new station [net_effect.csv neighbour_change_per_week].
    * Net: **+82 rides/week per new station** (95% CI +45 to +121); about **20%** of a new
      station's rides come from neighbours (CI -7% to 52%) [net_effect.csv].
    * The drop is largest within 250 m: **-7.0%** (CI -13.9% to +1.5%, so not certain); 250-500 m is
@@ -130,7 +131,7 @@ Close: "Here's the live dashboard link; the code and every number trace back to 
 
 * Re-run `python analysis/build_views.py && python dashboard/export_tables.py` after the
   collector stops (~2026-11-23) and fill every [PENDING] from the exports.
-* Experiment numbers above were read from PR #6's `analysis/results/new_stations/` files
-  on 2026-11-03; re-check them if that PR changes before it merges.
+* Experiment numbers above were read from `analysis/results/new_stations/` (merged
+  2026-11-03); re-check them if that analysis is re-run.
 * Requirements doc assumption still applies: the Analytics Team's interest is as stated by the
   project sponsor; confirm the right contact before sending.

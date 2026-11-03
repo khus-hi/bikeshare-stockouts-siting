@@ -1,6 +1,12 @@
 file,rows,source,exported_utc
-experiment_status.csv,1,analysis/results/new_stations,2026-11-03 01:53 UTC
-forecast_metrics.csv,108,analysis/results/netflow_metrics.csv,2026-11-03 01:53 UTC
-forecast_station_accuracy.csv,1854,"same, summed per station",2026-11-03 01:53 UTC
-forecast_vs_actual_hourly.csv,1449,saved LightGBM models re-scored on the test month,2026-11-03 01:53 UTC
-siting_tracts.csv,207,analysis/results/siting/boston_siting_scores.csv,2026-11-03 01:53 UTC
+experiment_did_by_distance.csv,12,analysis/results/new_stations/did_by_distance.csv,2026-11-03 02:03 UTC
+experiment_did_summary.csv,12,analysis/results/new_stations/did_summary.csv,2026-11-03 02:03 UTC
+experiment_event_study.csv,72,analysis/results/new_stations/event_study.csv,2026-11-03 02:03 UTC
+experiment_group_did.csv,539,analysis/results/new_stations/group_did.csv,2026-11-03 02:03 UTC
+experiment_net_effect.csv,4,analysis/results/new_stations/net_effect.csv,2026-11-03 02:03 UTC
+experiment_new_stations.csv,2509,analysis/results/new_stations/new_stations.csv,2026-11-03 02:03 UTC
+experiment_status.csv,1,analysis/results/new_stations,2026-11-03 02:03 UTC
+forecast_metrics.csv,108,analysis/results/netflow_metrics.csv,2026-11-03 02:03 UTC
+forecast_station_accuracy.csv,1854,"same, summed per station",2026-11-03 02:03 UTC
+forecast_vs_actual_hourly.csv,1449,saved LightGBM models re-scored on the test month,2026-11-03 02:03 UTC
+siting_tracts.csv,207,analysis/results/siting/boston_siting_scores.csv,2026-11-03 02:03 UTC

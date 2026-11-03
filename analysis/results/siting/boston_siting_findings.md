@@ -37,7 +37,7 @@ Method: `docs/siting_excel_guide.md`.
 | 15 | 25025090700 | Dorchester | 427 m | 4,746 residents, 44% of commuters go by transit, bike or foot |
 
 **How sure is this?**
-- **11 of the 15 are only 400–500 m from a station** in a straight line. These are edge-of-coverage
+- **12 of the 15 are only 400–500 m from a station** in a straight line. These are edge-of-coverage
   calls, and a walking-network distance could move them either way. The strongest gaps are #7
   (613 m), #14 (1,367 m) and #10 (2,171 m).
 - **The top 3 hold up under any one factor being dropped.** In the overall ranking they stay
