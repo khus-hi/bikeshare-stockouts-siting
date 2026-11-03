@@ -1,2 +1,2 @@
 experiment,status,files
-Do new stations add rides or move them? (stacked diff-in-diff),pending: analysis/new_station_did.py has not written results yet,
+Do new stations add rides or move them? (stacked diff-in-diff),results in,experiment_did_by_distance.csv; experiment_did_summary.csv; experiment_event_study.csv; experiment_group_did.csv; experiment_net_effect.csv; experiment_new_stations.csv
