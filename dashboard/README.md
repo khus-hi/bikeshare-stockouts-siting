@@ -44,7 +44,7 @@ Each block skips itself with a message when its input isn't on the machine. On K
 | `forecast_station_accuracy.csv` | station, Sep 2026 test month | **Exported** (Boston 618, Chicago 1,236 stations) |
 | `forecast_metrics.csv` | city × variant × forecast × metric | **Exported** (long form of `analysis/results/netflow_metrics.csv`) |
 | `siting_tracts.csv` | Boston Census tract | **Exported** (207 tracts) |
-| `experiment_status.csv` + `experiment_*.csv` | as written by the DiD study | **Placeholder**: the study hasn't written results yet |
+| `experiment_status.csv` + `experiment_*.csv` | as written by the DiD study | Copied in after PR #6 merges and the export re-runs |
 | `export_manifest.csv` | file | what was written, when, from what |
 
 NYC forecast tables need the Citi Bike panel (8 GB of trip zips); run
@@ -181,13 +181,21 @@ Canvas: **Theme and layout → Canvas size: Custom 1600 × 1400**. Grid of 3 row
 * Points are tract interior points, not station sites. Say so in a text box: the map points
   to areas of about 4,000 people, not street corners.
 
-### 5. Experiment result
-* Until results land: a **Table** from `experiment_status.csv` (it says "pending"), plus a
-  text box with the question. No numbers.
-* When `analysis/results/new_stations/*.csv` exists, re-run the export, add the
-  `experiment_*.csv` files as data sources and replace the table with: a scorecard of the
-  headline effect on nearby stations' rides with its 95% interval, and a bar chart of the
-  effect by distance ring (0–250, 250–500, 500–1,000 m) with error bars.
+### 5. Experiment result (data: `experiment_did_summary`, `experiment_net_effect`, `experiment_did_by_distance`)
+The study (PR #6) writes `analysis/results/new_stations/*.csv`; once it's merged, re-run the
+export and the files appear as `experiment_*.csv`. `system` is bluebikes / citibike / divvy /
+all (all = the three cities pooled), so the city control needs `boston → bluebikes`; simplest is a
+chart-level filter `system = bluebikes`.
+* **Scorecards** from `experiment_net_effect`: `own_departures_per_week`,
+  `neighbour_change_per_week`, `net_change_per_week` (aggregation None or Max; one row per system).
+  Put the `_ci95_low` / `_ci95_high` columns in a small table beneath.
+* **Headline row** from `experiment_did_summary`, filter `outcome = departures` and
+  `test = main`: `did_pct_of_pre` with `pct_ci95_low` / `pct_ci95_high`. Add the
+  `test = placebo_26w_earlier` row next to it so readers see the check.
+* **Bar chart** from `experiment_did_by_distance`: dimension `ring_m`, metric
+  `did_pct_of_pre`. Looker Studio has no error bars, so show the CI columns in the tooltip or
+  a table; in Power BI use error bars on the bar visual.
+* Before PR #6 merges, `experiment_status.csv` says "pending" and the tile shows no numbers.
 
 ### Finishing
 * **Share → Manage access → Anyone with the link can view** to put the link on a CV/LinkedIn.

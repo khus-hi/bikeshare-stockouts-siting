@@ -90,10 +90,21 @@ Visual: dashboard siting map (left) + forecast vs actual line for one week (righ
    (straight line) from a station.
 3. **West Roxbury / Hyde Park gaps (1.2–2.2 km):** a coverage-vs-ridership policy call.
    Show both rankings (income weight 0 vs >0) and let the city decide.
-4. **Evidence on cannibalization:** "When a new station opens, rides at existing stations
-   within 500 m change by **[PENDING, experiment_*.csv]** (95% CI **[PENDING]**), and the net
-   effect on the system is **[PENDING]**." If that study shows new stations mostly move rides,
-   prefer docks in the core over new edge stations; if they add rides, the edge list stands.
+4. **New stations add rides; they don't just move them.** Boston, 49 new-station openings,
+   123 existing stations nearby [analysis/results/new_stations/, PR #6]:
+   * Each new station drew **102 departures/week** of its own (95% CI 80 to 128).
+   * Existing stations within 500 m changed by **-8.3 departures/week, -3.4%**
+     (95% CI -7.1% to +1.4%), not statistically different from zero on that scale
+     [did_summary.csv, system=bluebikes, outcome=departures, test=main].
+   * Net: **+82 rides/week per new station** (95% CI +45 to +121); about **20%** of a new
+     station's rides come from neighbours (CI -7% to 52%) [net_effect.csv].
+   * The loss is concentrated within 250 m: **-7.0%** (CI -13.9% to +1.5%); 250-500 m is
+     -0.9% [did_by_distance.csv]. So space new stations more than 250 m from existing ones.
+   * Placebo (same test 26 weeks earlier): +0.5% (CI -2.6% to +4.5%), so the design isn't
+     finding effects where there shouldn't be any.
+   * Honest caveat: on the log scale the 500 m effect is a small, significant decline
+     (did_log -0.077, CI -0.134 to -0.024). Say "a small loss nearby, far outweighed by
+     the new station's own rides".
 
 ## Slide 6. What I'd do with your internal data
 
@@ -119,7 +130,7 @@ Close: "Here's the live dashboard link; the code and every number trace back to 
 
 * Re-run `python analysis/build_views.py && python dashboard/export_tables.py` after the
   collector stops (~2026-11-23) and fill every [PENDING] from the exports.
-* Fill the experiment numbers only from `analysis/results/new_stations/`. If it isn't done,
-  replace that bullet with "Measuring now; result by <date>".
+* Experiment numbers above were read from PR #6's `analysis/results/new_stations/` files
+  on 2026-11-03; re-check them if that PR changes before it merges.
 * Requirements doc assumption still applies: the Analytics Team's interest is as stated by the
   project sponsor; confirm the right contact before sending.
