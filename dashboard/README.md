@@ -204,6 +204,8 @@ chart-level filter `system = bluebikes`.
 
 ## Optional: Power BI Desktop (Windows) DAX measures
 
+Full click-by-click Power BI steps, including how to get Power BI from a Mac: [`powerbi_build_steps.md`](powerbi_build_steps.md). The short list of measures:
+
 Load each CSV with **Get data → Text/CSV**. Relationships are not needed: each visual uses
 one table, and a `Cities` table (`DISTINCT` of `city`) can drive a slicer if you relate it to
 each table's `city`.
