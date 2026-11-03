@@ -65,11 +65,13 @@ def con(tmp_path_factory):
         status(t(11, 50), "uuid-2", 12, 0, keyframe=True),   # full all day
         status(t(12, 10), "uuid-1", 0, 10),                  # empty from 12:10
         status(t(13, 0), "uuid-1", 2, 8),                    # refilled at 13:00
+        status(t(11, 50), "uuid-3", 0, 0, keyframe=True),   # no usable dock: out of service
     ]
     write(rows, STATUS_SCHEMA, g / "station_status" / "system=bluebikes" / "date=2026-11-03" / "data.parquet")
     info = [{"system": "bluebikes", "poll_ts": t(11, 50), "station_id": sid, "short_name": code,
              "name": name, "lat": 42.36, "lon": -71.06, "capacity": 12, "region_id": None}
-            for sid, code, name in [("uuid-1", "A1", "Station One"), ("uuid-2", "B2", "Station Two")]]
+            for sid, code, name in [("uuid-1", "A1", "Station One"), ("uuid-2", "B2", "Station Two"),
+                                    ("uuid-3", "C3", "Station Three")]]
     write(info, INFO_SCHEMA, g / "station_information" / "system=bluebikes" / "date=2026-11-03" / "data.parquet")
 
     # Reference trips at A1 in Nov 2025 (same month, one year earlier): Tuesdays Nov 4, 11,
@@ -144,7 +146,17 @@ def test_peak_ranking(con):
                        "ORDER BY peak_window, rank").fetchall()
     # 12:00 and 13:00 UTC are 7am and 8am local on a Tuesday (AM window: 35 + 12 = 47
     # observed minutes); 14:00 UTC is 9am local, outside the window.
-    assert rows == [("weekday 7-9am", 1, "B2", 1.0), ("weekday 7-9am", 2, "A1", round(25 / 47, 4))]
+    assert rows == [("weekday 7-9am", 1, "B2", 1.0), ("weekday 7-9am", 2, "A1", round(25 / 47, 4)),
+                    ("weekday 7-9am", 3, "C3", 0.0)]
+
+
+def test_zero_bikes_zero_docks_is_out_of_service(con):
+    # 0 bikes and 0 docks: neither empty nor full (it used to count as both -> 200%)
+    obs, empty, full, _, _ = hour_row(con, "C3", 12)
+    assert obs == 35 and empty == 0 and full == 0
+    oos = con.execute("SELECT minutes_out_of_service FROM station_hour_stockouts "
+                      "WHERE station_code = 'C3' AND hour_utc = ?", [datetime(2026, 11, 3, 12)]).fetchone()[0]
+    assert oos == 35
 
 
 def test_trip_hourly_counts(con):

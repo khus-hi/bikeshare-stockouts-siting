@@ -98,6 +98,9 @@ those are the GBFS `short_name`s. The GBFS `station_id` is a different internal 
    the feed stops counting at the end of its last day.
 3. **Empty** = `num_bikes_available = 0` while installed and renting.
    **Full** = `num_docks_available = 0` while installed and returning.
+   A station reporting **0 bikes and 0 docks** has no usable dock (all disabled or
+   offline), so it counts as out of service, not as empty and full at once (that double
+   count showed shares of 200% on the first real data, 2026-11-03).
 4. **Split by hour.** Segments are at most 15 minutes, so each is split at most once at an
    hour boundary. Hours are reported in UTC and in the station's local time.
 
