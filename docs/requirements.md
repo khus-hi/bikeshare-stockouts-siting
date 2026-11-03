@@ -66,7 +66,7 @@ Weights wₖ start equal, are documented in config, and are tested with a sensit
 
 Operators do not publish historical station status, so stockout history starts from when our polling begins. GBFS feed URLs are discovered from each system's `gbfs.json` root on every poll; the roots and the feeds they pointed to on 2026-11-01 are recorded in `ingest/README.md`.
 
-**Tooling (all free, no credit card):** Python and open-source libraries; change-only daily Parquet files read by DuckDB on a laptop for storage (optional local Postgres mirror); GBFS polling every 5 minutes by cron (macOS/Linux) or Task Scheduler (Windows) on the laptop, with a Kubeflow Pipelines recurring-run version for a local minikube cluster; free API keys only (Census); dashboard in Streamlit run locally or Tableau Public.
+**Tooling (all free, no credit card):** Python and open-source libraries; change-only daily Parquet files read by DuckDB on a laptop for storage (optional local Postgres mirror); GBFS polling every 5 minutes by cron (macOS/Linux) or Task Scheduler (Windows) on the laptop, with a Kubeflow Pipelines recurring-run version for a local minikube cluster; free API keys only (Census); dashboard in Looker Studio (free, browser-based; see `dashboard/README.md`), with Power BI Desktop measures as a Windows alternative.
 
 ## 6. Assumptions
 
