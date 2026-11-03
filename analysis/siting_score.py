@@ -177,6 +177,16 @@ def main() -> None:
     top["rank_range_in_sensitivity"] = top["geoid"].map(
         lambda g: f"{int(ranks.loc[g].min())}-{int(ranks.loc[g].max())}")
 
+    # New-station candidates: the same score, but only tracts with no station within the
+    # walk radius. The overall top N turned out to be dense tracts that already have several
+    # stations nearby (high demand, not a coverage gap), so "where to add a NEW station" is
+    # answered from the uncovered tracts. The overall list stays as a demand/capacity view.
+    cand = el[el["poor_coverage"]].nsmallest(n, "rank").copy()
+    cand["reason"] = cand.apply(lambda r: reasons(r, pct), axis=1)
+    cand["rank_range_in_sensitivity"] = cand["geoid"].map(
+        lambda g: f"{int(ranks.loc[g].min())}-{int(ranks.loc[g].max())}")
+    cand["candidate_rank"] = range(1, len(cand) + 1)
+
     # Equity: coverage among low-income tracts vs the rest
     grp = el.assign(group=np.where(el["low_income"], f"Low income (bottom {cfg['low_income_quantile']:.0%})",
                                    "All other eligible tracts"))
@@ -201,12 +211,22 @@ def main() -> None:
         f"Eligible tracts: {len(el)} of {len(s)} Boston tracts (population >= {cfg['min_population']}). "
         f"Weights: {w}. Distance capped at {cfg['distance_cap_m']:,} m before scaling.",
         "",
-        f"## Top {n} tracts",
+        f"## Top {n} new-station candidates (no station within {radius} m)",
+        "",
+        f"{int(el['poor_coverage'].sum())} eligible tracts have no station within {radius} m. Ranked by the same score.",
+        "",
+        md_table(cand.assign(
+            score=cand["score"].round(3),
+            income=cand["median_household_income"].map(lambda v: "n/a" if pd.isna(v) else f"${v:,.0f}"),
+        )[["candidate_rank", "rank", "geoid", "neighborhood", "score", "income", "reason", "rank_range_in_sensitivity"]]),
+        "",
+        f"## Top {n} tracts overall (demand view; these already have stations nearby)",
         "",
         md_table(top.assign(
             score=top["score"].round(3),
             income=top["median_household_income"].map(lambda v: "n/a" if pd.isna(v) else f"${v:,.0f}"),
-        )[["rank", "geoid", "neighborhood", "score", "income", "reason", "rank_range_in_sensitivity"]]),
+            stations_400m=top[f"stations_within_{radius}m"],
+        )[["rank", "geoid", "neighborhood", "score", "income", "stations_400m", "reason", "rank_range_in_sensitivity"]]),
         "",
         "## Sensitivity (leave one component out, others reweighted equally)",
         "",
@@ -223,6 +243,7 @@ def main() -> None:
             income=gaps["median_household_income"].map("${:,.0f}".format),
             no_car=gaps["share_households_no_vehicle"].map("{:.0%}".format),
             dist_m=gaps["dist_nearest_station_m"].map("{:,.0f}".format),
+            population=gaps["population"].map("{:,.0f}".format),
         )[["geoid", "neighborhood", "population", "income", "no_car", "dist_m", "rank"]]) if len(gaps) else "(none)",
         "",
     ]

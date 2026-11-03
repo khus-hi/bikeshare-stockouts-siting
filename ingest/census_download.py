@@ -206,6 +206,14 @@ def add_neighborhoods(city: str, pts: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     joined = gpd.sjoin(pts, nb[[field, "geometry"]], how="left", predicate="within")
     joined = joined[~joined.index.duplicated(keep="first")]
     pts["neighborhood"] = joined[field].astype("string").str.strip()
+    # A few interior points land just outside every polygon (NYC's NTA map is clipped to the
+    # shoreline and some piers). Give those the nearest neighborhood, measured in metres.
+    miss = pts["neighborhood"].isna()
+    if miss.any():
+        near = gpd.sjoin_nearest(pts.loc[miss].to_crs("EPSG:3857"), nb[[field, "geometry"]].to_crs("EPSG:3857"),
+                                 how="left", max_distance=500)
+        near = near[~near.index.duplicated(keep="first")]
+        pts.loc[miss, "neighborhood"] = near[field].astype("string").str.strip()
     if city == "chicago":
         pts["neighborhood"] = pts["neighborhood"].str.title()
     return pts

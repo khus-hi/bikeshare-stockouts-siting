@@ -214,6 +214,14 @@ Equity flags:
 | `PoorCoverage` | `=AND([@Eligible], [@Within400]=0)` |
 | `EquityGap` | `=AND([@LowIncome], [@PoorCoverage])` |
 | `EquityGapN` | `=--[@EquityGap]` (turns TRUE/FALSE into 1/0 so the pivot can sum it) |
+| `Candidate` | `=[@PoorCoverage]` (a new-station candidate: eligible, no station within 400 m) |
+| `CandidateRank` | `=IF([@Candidate], COUNTIFS([Candidate],TRUE,[Score],">"&[@Score])+1, "")` |
+
+Why a separate candidate rank: in the real Boston data the overall top 15 are all dense tracts
+that already have 2 to 10 stations within 400 m. The score finds where demand is; a new
+station is only worth placing where there is demand **and** no station. `CandidateRank`
+ranks the score among uncovered tracts only (COUNTIFS counts uncovered tracts with a higher
+score, plus 1).
 
 ## Step 7. Conditional formatting
 
@@ -267,6 +275,10 @@ New sheet `Top 15`, cell A2:
 ```
 Type headers in row 1 (Rank, GEOID, Neighborhood, Score, Distance m, Nearest station, Median income).
 This list re-sorts itself whenever you change a weight.
+
+Make a second sheet, `Top 15 new stations`, using the same formula but with `tblTracts[CandidateRank]`
+in place of `tblTracts[Rank]`. **This is the list that answers "where should new stations go."**
+The first list is a demand view: places that may need more docks rather than a new station.
 
 ## Step 10. Check against Python, then test the weights
 
