@@ -1,0 +1,5 @@
+system,n_events,own_departures_per_week,own_departures_per_week_ci95_low,own_departures_per_week_ci95_high,neighbour_change_per_week,neighbour_change_per_week_ci95_low,neighbour_change_per_week_ci95_high,net_change_per_week,net_change_per_week_ci95_low,net_change_per_week_ci95_high,cannibalised_share,cannibalised_share_ci95_low,cannibalised_share_ci95_high
+bluebikes,49,102.454,79.707,128.128,-20.822,-50.342,7.128,81.632,44.51,120.707,0.203,-0.072,0.516
+citibike,41,378.433,256.965,515.459,-15.846,-195.431,199.703,362.587,162.876,606.545,0.042,-0.58,0.523
+divvy,75,104.468,80.657,131.737,-3.78,-29.175,21.906,100.687,60.748,143.828,0.036,-0.193,0.312
+all,165,171.946,134.518,212.017,-11.839,-59.997,41.692,160.107,104.775,223.353,0.069,-0.239,0.346
