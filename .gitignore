@@ -17,3 +17,6 @@ venv/
 .DS_Store
 .vscode/
 .idea/
+
+# Dashboard: large optional export
+dashboard/exports/large/

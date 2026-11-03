@@ -1,0 +1,6 @@
+file,rows,source,exported_utc
+experiment_status.csv,1,analysis/results/new_stations,2026-11-03 01:53 UTC
+forecast_metrics.csv,108,analysis/results/netflow_metrics.csv,2026-11-03 01:53 UTC
+forecast_station_accuracy.csv,1854,"same, summed per station",2026-11-03 01:53 UTC
+forecast_vs_actual_hourly.csv,1449,saved LightGBM models re-scored on the test month,2026-11-03 01:53 UTC
+siting_tracts.csv,207,analysis/results/siting/boston_siting_scores.csv,2026-11-03 01:53 UTC
