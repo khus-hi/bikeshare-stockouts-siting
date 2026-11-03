@@ -98,8 +98,8 @@ Visual: dashboard siting map (left) + forecast vs actual line for one week (righ
      [did_summary.csv, system=bluebikes, outcome=departures, test=main].
    * Net: **+82 rides/week per new station** (95% CI +45 to +121); about **20%** of a new
      station's rides come from neighbours (CI -7% to 52%) [net_effect.csv].
-   * The loss is concentrated within 250 m: **-7.0%** (CI -13.9% to +1.5%); 250-500 m is
-     -0.9% [did_by_distance.csv]. So space new stations more than 250 m from existing ones.
+   * The drop is largest within 250 m: **-7.0%** (CI -13.9% to +1.5%, so not certain); 250-500 m is
+     -0.9% [did_by_distance.csv]. That favours sites more than 250 m from existing stations.
    * Placebo (same test 26 weeks earlier): +0.5% (CI -2.6% to +4.5%), so the design isn't
      finding effects where there shouldn't be any.
    * Honest caveat: on the log scale the 500 m effect is a small, significant decline
