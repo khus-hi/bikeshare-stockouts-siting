@@ -1,9 +1,8 @@
-"""Export the flat CSV tables the ops dashboard reads (Looker Studio or Power BI).
+"""Export the flat CSV tables the charts (dashboard/make_charts.py) and the pitch read.
 
-Dashboards are bad at joins and window functions and good at filtering and summing, so
-every number is computed here, in DuckDB / pandas, and the dashboard only adds things up.
-Each table has one clear grain (one row = one station-hour-of-day, one tract, ...), which
-is what both Looker Studio and Power BI expect.
+Every number is computed here, in DuckDB / pandas, from the repo's tested SQL and model
+outputs; charts only read these tables. Each table has one clear grain (one row = one
+station-hour-of-day, one tract, ...), so any BI tool could also load them as they are.
 
 Tables (dashboard/exports/):
   stockout_heatmap.csv          station x day type x local hour of day: empty/full hours, lost rides
@@ -71,7 +70,7 @@ def write(df: pd.DataFrame, name: str, source: str) -> None:
 
 
 def latlon(lat: pd.Series, lon: pd.Series) -> pd.Series:
-    """Looker Studio's map wants one text field "lat,lon" typed as Geo > Latitude, Longitude."""
+    """One "lat,lon" text field, the form most mapping tools accept as a single location."""
     return lat.round(6).astype(str) + "," + lon.round(6).astype(str)
 
 
@@ -93,7 +92,7 @@ def export_stockouts(cities: list[str], con=None) -> None:
     city_list = ", ".join(f"'{c}'" for c in cities)
 
     # Grain: station x weekday/weekend x local hour of day. Shares are computed in the
-    # dashboard from the summed hours (sum of ratios would be wrong), so the hours are kept.
+    # chart from the summed hours (sum of ratios would be wrong), so the hours are kept.
     heat = con.execute(f"""
         SELECT city, station_code, station_name, capacity, lat, lon,
                CASE WHEN isodow(hour_local) <= 5 THEN 'weekday' ELSE 'weekend' END AS day_type,
@@ -209,7 +208,7 @@ def export_forecast(systems: list[str], station_hours: bool) -> None:
             ae_net_naive=(out["actual_net"] - out["naive_net"]).abs(),
         ).groupby(["city", "station_code"], as_index=False)[["ae_model", "ae_naive", "ae_net_model", "ae_net_naive"]].sum()
         s = s.merge(abs_err, on=["city", "station_code"])
-        # Raw sums are kept so the dashboard can compute WAPE for any group of stations:
+        # Raw sums are kept so WAPE can be computed for any group of stations:
         # WAPE = SUM(abs error) / SUM(actual). Averaging per-station WAPEs would be wrong.
         s["departures_wape_model"] = s["ae_model"] / s["actual_departures"].replace(0, np.nan)
         s["departures_wape_naive"] = s["ae_naive"] / s["actual_departures"].replace(0, np.nan)

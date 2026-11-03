@@ -1,7 +1,7 @@
 # Pitch outline: City of Boston Analytics Team (6 slides)
 
 Audience: City of Boston Analytics Team, who work on Bluebikes station siting.
-Length: 10 minutes + questions. One message per slide; the dashboard is the appendix.
+Length: 10 minutes + questions. One message per slide; the charts in `dashboard/charts/` are the visuals.
 
 Every number below comes from a committed file, named in brackets. Numbers marked
 **[PENDING]** don't exist yet; fill them from the named export when it does, or drop the
@@ -48,7 +48,8 @@ Speaker note: keep this to 45 seconds; it's credibility, not the point.
   **[PENDING, problem_stations.csv `est_lost_rides`, `_low`, `_high`]**. Say it's
   conservative: demand is estimated from Nov 2025 trips, which already miss empty hours.
 * Top 5 problem stations at weekday 7–9am and 4–7pm **[PENDING, peak_problem_stations.csv]**.
-* Visual: the dashboard heatmap (stations × hour of day).
+* Visual: `charts/stockout_heatmap_boston.png` (stations × hour of day) and
+  `charts/problem_stations_boston.png`.
 * Caveat on the slide: one November window, not a full year.
 
 ## Slide 4. Findings: demand can be forecast, and the core is covered
@@ -76,7 +77,8 @@ Siting [analysis/results/siting/boston_siting_findings.md]:
   **20%** elsewhere). Six low-income tracts still do; the clearest is Roxbury 25025082100
   (median income **$29,719**, **50%** of households car-free).
 
-Visual: dashboard siting map (left) + forecast vs actual line for one week (right).
+Visual: `charts/siting_map_boston.png` (left) + `charts/forecast_week_boston.png` (right);
+`charts/forecast_error_by_city.png` as backup.
 
 ## Slide 5. Recommendation
 
@@ -106,6 +108,7 @@ Visual: dashboard siting map (left) + forecast vs actual line for one week (righ
    * Honest caveat: on the log scale the 500 m effect is a small, significant decline
      (did_log -0.077, CI -0.134 to -0.024). Say "a small loss nearby, far outweighed by
      the new station's own rides".
+   * Visual: `charts/new_station_effect.png`.
 
 ## Slide 6. What I'd do with your internal data
 
@@ -121,15 +124,15 @@ Ask for whichever of these the city or operator actually holds (I don't know whi
 * **Rider requests and 311 complaints about empty/full stations**: a direct check on the
   lost-rides estimate.
 * Proposal: a 4-week pilot. Rebalance the top problem stations from the forecast list,
-  compare stockout hours against matched stations, and report back with the same dashboard.
+  compare stockout hours against matched stations, and report back with the same charts.
 
-Close: "Here's the live dashboard link; the code and every number trace back to the repo."
+Close: "The code and every number trace back to the repo: github.com/khus-hi/bikeshare-stockouts-siting."
 
 ---
 
 ## Before presenting
 
-* Re-run `python analysis/build_views.py && python dashboard/export_tables.py` after the
+* Re-run `python analysis/build_views.py && python dashboard/export_tables.py && python dashboard/make_charts.py` after the
   collector stops (~2026-11-23) and fill every [PENDING] from the exports.
 * Experiment numbers above were read from `analysis/results/new_stations/` (merged
   2026-11-03); re-check them if that analysis is re-run.
